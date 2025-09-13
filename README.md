@@ -149,4 +149,6 @@ npm run package
 
 ## License
 
-This project is provided as-is for educational and development purposes.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+This software is provided "as-is" without warranty of any kind.
