@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html data-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="pico.min.css">
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <main>
+        <header class="main-header">
+            <h2>Gmail RAG Assistant</h2>
+            <div class="header-actions">
+                <div id="authStatusText" class="auth-status-text hidden">Not connected to Gmail</div>
+                <button id="toggleConfigButton" class="config-toggle-button hidden" title="Show configuration">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11.03L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.97 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11.03C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.95C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.95L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Configuration Section -->
+        <article id="configSection" class="section-container">
+            <h3>Configuration</h3>
+            <form>
+                <label for="geminiApiKey">Gemini API Key:</label>
+                <input type="password" id="geminiApiKey" placeholder="Enter your Gemini API key" required>
+                
+                <label for="geminiModel">Gemini Model:</label>
+                <select id="geminiModel" required>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                    <option value="gemini-2.5-flash-lite" selected>Gemini 2.5 Flash Lite</option>
+                    <option value="gemini-2.5-pro">Gemini 2.5 Pro (Advanced)</option>
+                </select>
+                
+                <button type="button" id="saveConfig">Save Configuration</button>
+                <button type="button" id="authButton">Connect to Gmail</button>
+                <button type="button" id="logoutButton" class="logout-button hidden">Logout</button>
+                <button type="button" id="hideConfigButton" class="hide-config-button" style="display: none;">Hide Settings</button>
+            </form>
+        </article>
+
+        <!-- Search Section -->
+        <article class="section-container search-section">
+            <h3>Ask Your Question</h3>
+            <form>
+                <label for="query">Question:</label>
+                <textarea id="query" placeholder="Ask a question about your emails..." required rows="3"></textarea>
+                
+                <div class="query-actions">
+                    <button type="button" id="clearButton" class="secondary-button">Clear</button>
+                    <small class="keyboard-hint">Press Ctrl+Enter to search</small>
+                </div>
+
+                <!-- Search Options -->
+                <details class="search-options">
+                    <summary>Search Options</summary>
+                    
+                    <div class="option-toggle">
+                        <input type="checkbox" id="aiAssistedFolders">
+                        <label for="aiAssistedFolders">🤖 Let AI choose where to search</label>
+                    </div>
+                    
+                    <div id="manualFolderSelection" class="folder-selection">
+                        <p><strong>Search in:</strong></p>
+                        <div class="folder-grid">
+                            <label>
+                                <input type="checkbox" id="inbox" value="INBOX" checked>
+                                Inbox
+                            </label>
+                            <label>
+                                <input type="checkbox" id="sent" value="SENT">
+                                Sent
+                            </label>
+                            <label>
+                                <input type="checkbox" id="drafts" value="DRAFT">
+                                Drafts
+                            </label>
+                            <label>
+                                <input type="checkbox" id="all" value="ALL">
+                                All Mail
+                            </label>
+                        </div>
+                        <button type="button" id="showMoreLabelsButton" class="expand-button">Show more labels</button>
+                        <div id="additionalLabelsContainer" class="additional-labels" style="display: none;"></div>
+                        <button type="button" id="showLessLabelsButton" class="expand-button" style="display: none;">Show fewer labels</button>
+                    </div>
+                </details>
+
+                <button type="button" id="searchButton" class="primary-button" disabled>
+                    <span class="button-text">Search & Analyze</span>
+                    <div class="loading-spinner" style="display: none;"></div>
+                </button>
+                
+                <div id="searchProgress" class="search-progress">
+                    <div class="progress-text">Searching your emails...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+            </form>
+        </article>
+
+        <!-- Error Display Area -->
+        <div id="errorDisplay" class="error-display" style="display: none;"></div>
+        
+        <!-- Status Messages -->
+        <div id="status" class="status"></div>
+        
+        <!-- Results Section -->
+        <article id="resultsSection" class="section-container results-section" style="display: none;">
+            <div class="results-header">
+                <h3>Answer</h3>
+                <button id="copyButton" class="copy-button" title="Copy to clipboard">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="results" class="results"></div>
+        </article>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="large-spinner"></div>
+            <p>Analyzing your emails...</p>
+            <button id="cancelButton" class="secondary-button">Cancel</button>
+        </div>
+    </div>
+
+    <script src="popup.js" defer></script>
+</body>
+</html>

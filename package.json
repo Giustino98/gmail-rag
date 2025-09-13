@@ -1,0 +1,26 @@
+{
+  "name": "gmail-rag-extension",
+  "version": "1.0.0",
+  "description": "RAG-powered Gmail search with Gemini AI integration",
+  "main": "background.js",
+  "scripts": {
+    "build": "esbuild src/background.js src/popup.js --bundle --outdir=dist --format=iife --minify=false --keep-names && cp src/*.html src/*.css dist/",
+    "dev": "esbuild src/background.js src/popup.js --bundle --outdir=dist --format=iife --minify=false --keep-names --watch",
+    "package": "npm run build && zip -r extension.zip dist/ manifest.json icons/ logo.png -x '*.map' -x '**/node_modules/**'"
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.9"
+  },
+  "keywords": [
+    "chrome-extension",
+    "gmail",
+    "rag",
+    "gemini",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT"
+}
